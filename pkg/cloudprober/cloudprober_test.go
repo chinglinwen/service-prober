@@ -1,8 +1,10 @@
 package cloudprober
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/davecgh/go-spew/spew"
 	configpb "github.com/google/cloudprober/probes/proto"
 	proto1 "github.com/google/cloudprober/targets/proto"
 )
@@ -33,4 +35,21 @@ func TestAdd(t *testing.T) {
 		t.Errorf("add err: %v", err)
 		return
 	}
+}
+func TestList(t *testing.T) {
+	ts, err := testc.ListProbe()
+	if err != nil {
+		t.Errorf("list err: %v", err)
+		return
+	}
+	fmt.Printf("len %v\n", len(ts))
+	if len(ts) > 0 {
+		// fmt.Printf("%#v\n", ts[0])
+		spew.Dump(ts[0])
+	}
+
+	v := ts[0]
+
+	fmt.Printf("ok %#v,%#v\n,", v.GetName(), v.GetConfig().GetTargets().GetHostNames())
+
 }

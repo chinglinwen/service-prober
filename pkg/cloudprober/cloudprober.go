@@ -36,6 +36,21 @@ func (c *Client) Getclient() (client pb.CloudproberClient, err error) {
 	return c.client, nil
 }
 
+func (c *Client) ListProbe() (probes []*pb.Probe, err error) {
+	client, err := c.Getclient()
+	if err != nil {
+		err = fmt.Errorf("get client err: %v", err)
+		return
+	}
+	ps, err := client.ListProbes(context.Background(), &pb.ListProbesRequest{})
+	if err != nil {
+		err = fmt.Errorf("list probe err: %v", err)
+		return
+	}
+	probes = ps.Probe
+	return
+}
+
 func (c *Client) RemoveProbe(name string) (err error) {
 	client, err := c.Getclient()
 	if err != nil {
