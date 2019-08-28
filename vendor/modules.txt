@@ -1,0 +1,28 @@
+# github.com/ericchiang/k8s v1.2.0
+github.com/ericchiang/k8s
+github.com/ericchiang/k8s/apis/core/v1
+github.com/ericchiang/k8s/apis/meta/v1
+github.com/ericchiang/k8s/runtime
+github.com/ericchiang/k8s/watch/versioned
+github.com/ericchiang/k8s/apis/apiextensions/v1beta1
+github.com/ericchiang/k8s/apis/resource
+github.com/ericchiang/k8s/runtime/schema
+github.com/ericchiang/k8s/util/intstr
+# github.com/ghodss/yaml v1.0.0
+github.com/ghodss/yaml
+# github.com/golang/protobuf v1.3.2
+github.com/golang/protobuf/proto
+# github.com/pkg/errors v0.8.1
+github.com/pkg/errors
+# golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
+golang.org/x/net/http2
+golang.org/x/net/http/httpguts
+golang.org/x/net/http2/hpack
+golang.org/x/net/idna
+# golang.org/x/text v0.3.0
+golang.org/x/text/secure/bidirule
+golang.org/x/text/unicode/bidi
+golang.org/x/text/unicode/norm
+golang.org/x/text/transform
+# gopkg.in/yaml.v2 v2.2.2
+gopkg.in/yaml.v2
