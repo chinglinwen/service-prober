@@ -1,0 +1,40 @@
+syntax = "proto2";
+
+package cloudprober;
+
+import "github.com/google/cloudprober/probes/proto/config.proto";
+
+service Cloudprober {
+  // AddProbe adds a probe to cloudprober. Error is returned if probe is already
+  // defined or there is an error during initialization of the probe.
+  rpc AddProbe(AddProbeRequest) returns (AddProbeResponse) {}
+
+  // RemoveProbe stops the probe and removes it from the in-memory database.
+  rpc RemoveProbe(RemoveProbeRequest) returns (RemoveProbeResponse) {}
+
+  // ListProbes lists active probes.
+  rpc ListProbes(ListProbesRequest) returns (ListProbesResponse) {}
+}
+
+message AddProbeRequest {
+  optional probes.ProbeDef probe_config = 1;
+}
+
+message AddProbeResponse {}
+
+message RemoveProbeRequest {
+  optional string probe_name = 1;
+}
+
+message RemoveProbeResponse {}
+
+message ListProbesRequest {}
+
+message Probe {
+  optional string name = 1;
+  optional probes.ProbeDef config = 2;
+}
+
+message ListProbesResponse {
+  repeated Probe probe = 1;
+}

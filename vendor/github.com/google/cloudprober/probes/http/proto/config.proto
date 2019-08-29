@@ -1,0 +1,73 @@
+syntax = "proto2";
+
+package cloudprober.probes.http;
+
+// Next tag: 15
+message ProbeConf {
+  enum ProtocolType {
+    HTTP = 0;
+    HTTPS = 1;
+  }
+
+  enum Method {
+    GET = 0;
+    POST = 1;
+    PUT = 2;
+    HEAD = 3;
+    DELETE = 4;
+    PATCH = 5;
+    OPTIONS = 6;
+  }
+
+  message Header {
+    optional string name = 1;
+    optional string value = 2;
+  }
+
+  // Which HTTP protocol to use
+  optional ProtocolType protocol = 1 [default = HTTP];
+  // Relative URL (to append to all targets). Must begin with '/'
+  optional string relative_url = 2;
+  // Port, default is 80 for HTTP and 443 for HTTPS
+  optional int32 port = 3;
+
+  // Whether to resolve the target before making the request. If set to false,
+  // we hand over the target and relative_url directly to the golang's HTTP
+  // module, Otherwise, we resolve the target first to an IP address and
+  // make a request using that while passing target name as Host header.
+  optional bool resolve_first = 4 [default = false];
+
+  // Export response (body) count as a metric
+  optional bool export_response_as_metrics = 5 [default = false];
+
+  // HTTP request method
+  optional Method method = 7 [default = GET];
+
+  // HTTP request headers
+  repeated Header headers = 8;
+
+  // Request body.
+  optional string body = 9;
+
+  // Enable HTTP keep-alive. If set to true, underlying connection is reused
+  // for further probes. Default is to close the connection after every request.
+  optional bool keep_alive = 12;
+
+  // Disable HTTP2
+  // Golang HTTP client automatically enables HTTP/2 if server supports it. This
+  // option disables that behavior to enforce HTTP/1.1 for testing purpose.
+  optional bool disable_http2 = 13;
+
+  // Disable TLS certificate validation. If set to true, any certificate
+  // presented by the server for any host name will be accepted.
+  optional bool disable_cert_validation = 14;
+
+  // Requests per probe (Deprecated).
+  // NOTE: This field is now deprecated and will be removed after the v0.10.3
+  // releases.
+  optional int32 requests_per_probe = 98 [default = 1];
+  // How long to wait between two requests to the same target
+  // NOTE: This field is now deprecated and will be removed after the v0.10.3
+  // releases.
+  optional int32 requests_interval_msec = 99 [default = 25];
+}

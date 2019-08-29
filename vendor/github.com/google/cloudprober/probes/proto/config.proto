@@ -1,0 +1,122 @@
+syntax = "proto2";
+
+package cloudprober.probes;
+
+import "github.com/google/cloudprober/metrics/proto/dist.proto";
+import "github.com/google/cloudprober/probes/dns/proto/config.proto";
+import "github.com/google/cloudprober/probes/external/proto/config.proto";
+import "github.com/google/cloudprober/probes/http/proto/config.proto";
+import "github.com/google/cloudprober/probes/ping/proto/config.proto";
+import "github.com/google/cloudprober/probes/udp/proto/config.proto";
+import "github.com/google/cloudprober/probes/udplistener/proto/config.proto";
+import "github.com/google/cloudprober/targets/proto/targets.proto";
+import "github.com/google/cloudprober/validators/proto/config.proto";
+
+message ProbeDef {
+  required string name = 1;
+
+  enum Type {
+    PING = 0;
+    HTTP = 1;
+    DNS = 2;
+    EXTERNAL = 3;
+    UDP = 4;
+    UDP_LISTENER = 5;
+
+    // One of the extension probe types. See "extensions" below for more
+    // details.
+    EXTENSION = 98;
+
+    // USER_DEFINED probe type is for a one off probe that you want to compile
+    // into cloudprober, but you don't expect it to be reused. If you expect
+    // it to be reused, you should consider adding it using the extensions
+    // mechanism.
+    USER_DEFINED = 99;
+  }
+  required Type type = 2;
+
+  // Which machines this probe should run on. If defined, cloudprober will run
+  // this probe only if machine's hostname matches this value.
+  optional string run_on = 3;
+
+  // Interval between two probes
+  optional int32 interval_msec = 4 [default = 2000];
+
+  // Timeout for each probe
+  optional int32 timeout_msec = 5 [default = 1000];
+
+  // Targets for the probe
+  required targets.TargetsDef targets = 6;
+
+  // Latency distribution. If specified, latency is stored as a distribution.
+  optional metrics.Dist latency_distribution = 7;
+
+  // Latency unit. Any string that's parseable by time.ParseDuration.
+  // Valid values: "ns", "us" (or "µs"), "ms", "s", "m", "h".
+  optional string latency_unit = 8 [default = "us"];
+
+  // Validators are in experimental phase right now and can change at any time.
+  // NOTE: Only PING, HTTP and DNS probes support validators.
+  repeated validators.Validator validator = 9;
+
+  // Set the source IP to send packets from, either by providing an IP address
+  // directly, or a network interface.
+  oneof source_ip_config {
+    string source_ip = 10;
+    string source_interface = 11;
+  }
+
+  // IP version to use for networking probes. If specified, this is used at the
+  // time of resolving a target, picking the correct IP for the source IP if
+  // source_interface option is provided, and to craft the packet correctly
+  // for PING probes.
+  //
+  // If ip_version is not configured but source_ip is provided, we get
+  // ip_version from it. If both are  confgiured, an error is returned if there
+  // is a conflict between the two.
+  //
+  // If left unspecified and both addresses are available in resolve call or on
+  // source interface, IPv4 is preferred.
+  // Future work: provide an option to prefer IPv4 and IPv6 explicitly.
+  enum IPVersion {
+    IP_VERSION_UNSPECIFIED = 0;
+    IPV4 = 1;
+    IPV6 = 2;
+  }
+  optional IPVersion ip_version = 12;
+
+  // How often to export stats. Probes usually run at a higher frequency (e.g.
+  // every second); stats from individual probes are aggregated within
+  // cloudprober until exported. In most cases, users don't need to change the
+  // default.
+  //
+  // By default this field is set in the following way:
+  // For all probes except UDP:
+  //   stats_export_interval=max(interval, 10s)
+  // For UDP:
+  //   stats_export_interval=max(2*max(interval, timeout), 10s)
+  optional int32 stats_export_interval_msec = 13;
+
+  oneof probe {
+    ping.ProbeConf ping_probe = 20;
+    http.ProbeConf http_probe = 21;
+    dns.ProbeConf dns_probe = 22;
+    external.ProbeConf external_probe = 23;
+    udp.ProbeConf udp_probe = 24;
+    udplistener.ProbeConf udp_listener_probe = 25;
+    // This field's contents are passed on to the user defined probe, registered
+    // for this probe's name through probes.RegisterUserDefined().
+    string user_defined_probe = 99;
+  }
+
+  optional DebugOptions debug_options = 100;
+
+  // Extensions allow users to to add new probe types (for example, a probe type
+  // that utilizes a custom protocol) in a systematic manner.
+  extensions 200 to max;
+}
+
+message DebugOptions {
+  // Whether to log metrics or not.
+  optional bool log_metrics = 1;
+}

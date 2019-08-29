@@ -1,0 +1,67 @@
+// Configuration proto for GCE targets.
+syntax = "proto2";
+
+package cloudprober.targets.gce;
+
+// TargetsConf represents GCE targets, e.g. instances, forwarding rules etc.
+message TargetsConf {
+  // If running on GCE, this defaults to the local project.
+  // Note: Multiple projects support in targets is experimental and may go away
+  // with future iterations.
+  repeated string project = 1;
+
+  oneof type {
+    Instances instances = 2;
+    ForwardingRules forwarding_rules = 3;
+  }
+}
+
+// Represents GCE instances
+message Instances {
+  // IP address resolving options.
+
+  // Use DNS to resolve target names (instances). If set to false (default),
+  // IP addresses specified in the compute.Instance resource is used. If set
+  // to true all the other resolving options are ignored.
+  optional bool use_dns_to_resolve = 1 [default = false];
+
+  // Get the IP address from Network Interface
+  message NetworkInterface {
+    optional int32 index = 1 [default = 0];
+    enum IPType {
+      // Private IP address.
+      PRIVATE = 0;
+
+      // IP address of the first access config.
+      PUBLIC = 1;
+
+      // First IP address from the first Alias IP range. For example, for
+      // alias IP range "192.168.12.0/24", 192.168.12.0 will be returned.
+      ALIAS = 2;
+    }
+    optional IPType ip_type = 2 [default = PRIVATE];
+  }
+  optional NetworkInterface network_interface = 2;
+}
+
+// Represents GCE forwarding rules. Does not support multiple projects
+message ForwardingRules {
+  // Important: if multiple probes use forwarding_rules targets, only the
+  // settings in the definition will take effect.
+  // TODO(manugarg): Fix this behavior.
+  //
+  // For regional forwarding rules, regions to return forwarding rules for.
+  // Default is to return forwarding rules from the region that the VM is
+  // running in. To return forwarding rules from all regions, specify region as
+  // "all".
+  repeated string region = 1;
+}
+
+// Global GCE targets options. These options are independent of the per-probe
+// targets which are defined by the "GCETargets" type above.
+message GlobalOptions {
+  // How often targets should be evaluated/expanded
+  optional int32 re_eval_sec = 1 [default = 900];  // default 15 min
+  // Compute API version.
+  optional string api_version = 2 [default = "v1"];
+}

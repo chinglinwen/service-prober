@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+package cloudprober.probes.udplistener;
+
+message ProbeConf {
+  // Port to listen.
+  optional int32 port = 3 [default = 32212];
+
+  // Probe response to an incoming packet: echo back or discard.
+  enum Type {
+    INVALID = 0;
+    ECHO = 1;
+    DISCARD = 2;
+  }
+  optional Type type = 4;
+
+  // Number of packets sent in a single probe.
+  optional int32 packets_per_probe = 5 [default = 1];
+}
