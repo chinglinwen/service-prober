@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 	"wen/service-prober/pkg/cloudprober"
 	"wen/service-prober/pkg/k8s"
@@ -10,8 +11,14 @@ import (
 	// "github.com/davecgh/go-spew/spew"
 	// "github.com/getlantern/deepcopy"
 
+	"github.com/davecgh/go-spew/spew"
 	configpb "github.com/google/cloudprober/probes/proto"
 	target "github.com/google/cloudprober/targets/proto"
+)
+
+const (
+	pathAnnotation   = "prober.haodai.net/path"
+	enableAnnotation = "prober.haodai.net/enable"
 )
 
 // see probe item: http://t.com:9313/status
@@ -92,11 +99,29 @@ func getServiceTargets(olditems map[string]*item) (ts map[string]*item, err erro
 		return
 	}
 	for _, v := range ss {
-		name := fmt.Sprintf("%v/%v", v.GetMetadata().GetName(), v.GetMetadata().GetNamespace())
+		name := fmt.Sprintf("%v/%v", v.GetMetadata().GetNamespace(), v.GetMetadata().GetName())
 		if _, ok := ts[name]; ok {
 			log.Printf("ignore %v, already exist\n", name)
 			continue
 		}
+
+		var path string
+		an := v.GetMetadata().GetAnnotations()
+		if v, ok := an[pathAnnotation]; ok {
+			path = v
+		}
+		if strings.Contains(name, "prober") {
+			spew.Dump("an", an)
+		}
+		var enable string
+		if v, ok := an[enableAnnotation]; ok {
+			enable = v
+		}
+		if enable != "true" {
+			// log.Printf("%v not enabled, skip", name)
+			continue
+		}
+
 		ip := v.GetSpec().GetClusterIP()
 		if ip == "None" {
 			// log.Printf("ignore %v, ip is None\n", name)
@@ -107,7 +132,8 @@ func getServiceTargets(olditems map[string]*item) (ts map[string]*item, err erro
 			continue
 		}
 		port := ports[0].GetPort()
-		url := fmt.Sprintf("http://%v:%v/healthz", ip, port)
+
+		url := fmt.Sprintf("http://%v:%v%v", ip, port, path)
 		t := &item{
 			name: name,
 			url:  url,
