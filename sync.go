@@ -37,6 +37,15 @@ func sync(server string, i time.Duration) (err error) {
 			if v.skip {
 				continue
 			}
+			if v.delete {
+				err := s.RemoveProbe(v.name)
+				if err != nil {
+					log.Printf("delete %v err: %v\n", v.name, err)
+					continue
+				}
+				log.Printf("deleted %v ok\n", v.name)
+				continue
+			}
 			if v.update {
 				err := s.RemoveProbe(v.name)
 				if err != nil {
@@ -158,30 +167,28 @@ func convert(v *item) *configpb.ProbeDef {
 
 }
 func compare(old, new map[string]*item) map[string]*item {
-	// spew.Dump("old", old)
-	// spew.Dump("new", new)
 	if old == nil {
-		// olditems = new
-		// deepcopy.Copy(olditems, new)
 		return new
 	}
-	// i := 0
 	for k, v := range new {
-		// if i == 0 {
-		// 	spew.Dump(k, v)
-		// 	i++
-		// }
+		// exist, see if need update
 		if oldv, ok := old[k]; ok {
 			if oldv.url != v.url {
 				v.update = true
 				continue
 			} else {
 				v.skip = true
+				// delete old item
+				delete(old, k)
 			}
 		}
+		// default is create
 	}
-	// olditems = new
-	// deepcopy.Copy(olditems, new)
+	for k, v := range old {
+		// what left need to delete
+		v.delete = true
+		new[k] = v
+	}
 	return new
 }
 
@@ -190,4 +197,5 @@ type item struct {
 	url    string
 	update bool
 	skip   bool
+	delete bool
 }
