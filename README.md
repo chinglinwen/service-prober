@@ -15,6 +15,8 @@ metadata:
     prober.haodai.net/enable: "true"
 ```
 
+> remove annotation will remove the probe entry.
+
 ## Configure path
 
 service annotations:
