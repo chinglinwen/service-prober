@@ -1,6 +1,6 @@
 # Service-Prober
 
-Sync kubernetes service to cloudprober service( run in the same container )
+Sync kubernetes service to cloudprober service( run inside the same container )
 
 ## Usage
 
@@ -25,6 +25,6 @@ service annotations:
 |prober.haodai.net/path: | "/healthz" |
 
 
-## Demo
+## Cloudprober status page
 
 ![cloudprober status](doc/status.png)
