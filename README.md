@@ -17,9 +17,9 @@ metadata:
 
 ## Configure path
 
-annotations:
+service annotations:
 
+| annotation | example value |
 |---|--|
 |prober.haodai.net/enable: | "true" |
 |prober.haodai.net/path: | "/healthz" |
-|---|--|s
