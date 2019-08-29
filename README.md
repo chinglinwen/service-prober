@@ -27,4 +27,4 @@ service annotations:
 
 ## Demo
 
-[cloudprober status](doc/status.png)
+![cloudprober status](doc/status.png)
