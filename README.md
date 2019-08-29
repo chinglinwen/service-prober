@@ -23,3 +23,8 @@ service annotations:
 |---|--|
 |prober.haodai.net/enable: | "true" |
 |prober.haodai.net/path: | "/healthz" |
+
+
+## Demo
+
+[cloudprober status](doc/status.png)
