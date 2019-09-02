@@ -88,8 +88,6 @@ spec:
   selector:
     app: service-prober
 
-# https://prober.newops.haodai.net/status
-# https://prober.newops.haodai.net/metrics
 # Ingress
 ---
 apiVersion: extensions/v1beta1
@@ -102,7 +100,7 @@ metadata:
     traefik.ingress.kubernetes.io/redirect-entry-point: https
 spec:
   rules:
-    - host: prober.newops.haodai.net
+    - host: prober.example.com
       http:
         paths:
           - path: /
@@ -138,6 +136,24 @@ spec:
           #   - 172.31.90.49:9314
           ports:
             - containerPort: 9314
+          readinessProbe:
+            tcpSocket:
+              port: 9313
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 9313
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 0.5
+              memory: 512M
+            limits:
+              cpu: 2
+              memory: 4G
+
       nodeSelector:
         #kubernetes.io/hostname: 172.31.90.208
         func: monitor2
