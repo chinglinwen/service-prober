@@ -15,7 +15,7 @@ var (
 	pathAnnotation   = flag.String("anPath", "prober.haodai.net/path", "service path annotation key")
 	enableAnnotation = flag.String("anEnable", "prober.haodai.net/enable", "service prober enable annotation key")
 
-	probeInterval = flag.Int("httpInterval", 30000, "http probe interval (milli-second) ")
+	probeInterval = flag.Int("httpInterval", 3000, "http probe interval (milli-second) ")
 	probeTimeout  = flag.Int("httpTimeout", 5000, "http probe timeout (milli-second)")
 )
 
