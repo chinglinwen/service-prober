@@ -9,8 +9,14 @@ import (
 
 var (
 	server    = flag.String("server", "localhost:9314", "gRPC server address")
-	interval  = flag.String("i", "10s", "interval for sync service")
+	interval  = flag.String("i", "1m", "interval for sync service")
 	enableAll = flag.Bool("all", false, "enable for all service")
+
+	pathAnnotation   = flag.String("anPath", "prober.haodai.net/path", "service path annotation key")
+	enableAnnotation = flag.String("anEnable", "prober.haodai.net/enable", "service prober enable annotation key")
+
+	probeInterval = flag.Int("httpInterval", 30000, "http probe interval (milli-second) ")
+	probeTimeout  = flag.Int("httpTimeout", 5000, "http probe timeout (milli-second)")
 )
 
 // see probe item: http://t.com:9313/status

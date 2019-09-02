@@ -11,15 +11,12 @@ import (
 	target "github.com/google/cloudprober/targets/proto"
 )
 
-const (
-	pathAnnotation   = "prober.haodai.net/path"
-	enableAnnotation = "prober.haodai.net/enable"
-)
-
 // see probe item: http://t.com:9313/status
 func sync(server string, i time.Duration) (err error) {
 
 	for {
+		log.Printf("sleep interval %v...\n", i)
+		time.Sleep(i)
 		log.Println("start new sync...")
 		s := cloudprober.New(server)
 		olditems, err := getOldTargets(s)
@@ -64,7 +61,7 @@ func sync(server string, i time.Duration) (err error) {
 		if noanyupdate {
 			log.Printf("there's no any update\n")
 		}
-		time.Sleep(i)
+		// time.Sleep(i)
 	}
 	log.Printf("exit sync\n")
 	return
@@ -111,7 +108,7 @@ func getServiceTargets(olditems map[string]*item) (ts map[string]*item, err erro
 
 		var path string
 		an := v.GetMetadata().GetAnnotations()
-		if v, ok := an[pathAnnotation]; ok {
+		if v, ok := an[*pathAnnotation]; ok {
 			path = v
 		}
 		// if strings.Contains(name, "prober") {
@@ -119,7 +116,7 @@ func getServiceTargets(olditems map[string]*item) (ts map[string]*item, err erro
 		// }
 		if !*enableAll {
 			var enable string
-			if v, ok := an[enableAnnotation]; ok {
+			if v, ok := an[*enableAnnotation]; ok {
 				enable = v
 			}
 			if enable != "true" {
@@ -150,8 +147,8 @@ func getServiceTargets(olditems map[string]*item) (ts map[string]*item, err erro
 }
 
 func convert(v *item) *configpb.ProbeDef {
-	interval := int32(5000)
-	timeout := int32(1000)
+	interval := int32(*probeInterval)
+	timeout := int32(*probeTimeout)
 	ptype := configpb.ProbeDef_HTTP
 	return &configpb.ProbeDef{
 		Name: &v.name,
