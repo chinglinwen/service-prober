@@ -11,31 +11,39 @@ import (
 	target "github.com/google/cloudprober/targets/proto"
 )
 
-// see probe item: http://t.com:9313/status
-func sync(server string, i time.Duration) (err error) {
+type server struct {
+	server   string
+	interval time.Duration
+}
 
+func newserver(grpcAddr string, i time.Duration) server {
+	return server{server: grpcAddr, interval: i}
+}
+
+// see probe item: http://t.com:9313/status
+func (s *server) sync() (err error) {
+	client := cloudprober.New(s.server)
 	for {
-		log.Printf("sleep interval %v...\n", i)
-		time.Sleep(i)
+		log.Printf("sleep interval %v...\n", s.interval)
+		time.Sleep(s.interval)
 		log.Println("start new sync...")
-		s := cloudprober.New(server)
-		olditems, err := getOldTargets(s)
+		olditems, err := getOldTargets(client)
 		if err != nil {
 			log.Printf("get old targets err: %v\n", err)
 			continue
 		}
-		ts, err := getServiceTargets(olditems)
+		targets, err := getServiceTargets(olditems)
 		if err != nil {
 			log.Printf("get service err: %v\n", err)
 			continue
 		}
 		noanyupdate := true
-		for _, v := range ts {
+		for _, v := range targets {
 			if v.skip {
 				continue
 			}
 			if v.delete {
-				err := s.RemoveProbe(v.name)
+				err := client.RemoveProbe(v.name)
 				if err != nil {
 					log.Printf("delete %v err: %v\n", v.name, err)
 					continue
@@ -44,14 +52,14 @@ func sync(server string, i time.Duration) (err error) {
 				continue
 			}
 			if v.update {
-				err := s.RemoveProbe(v.name)
+				err := client.RemoveProbe(v.name)
 				if err != nil {
 					log.Printf("remove %v first err: %v\n", v.name, err)
 					continue
 				}
 			}
 			noanyupdate = false
-			err := s.AddProbe(convert(v))
+			err := client.AddProbe(convert(v))
 			if err != nil {
 				log.Printf("addprobe %v err: %v\n", v.name, err)
 				continue
