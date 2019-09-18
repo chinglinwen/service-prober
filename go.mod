@@ -10,6 +10,7 @@ require (
 	github.com/golang/protobuf v1.3.2
 	github.com/google/cloudprober v0.10.4
 	github.com/pkg/errors v0.8.1
+	github.com/pkg/profile v1.3.0
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
 	google.golang.org/grpc v1.23.0
 	gopkg.in/yaml.v2 v2.2.2 // indirect

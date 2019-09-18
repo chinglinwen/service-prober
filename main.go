@@ -5,6 +5,8 @@ import (
 	"log"
 	"time"
 	"wen/service-prober/pkg/cloudprober"
+
+	"github.com/pkg/profile"
 )
 
 var (
@@ -21,7 +23,7 @@ var (
 
 // see probe item: http://t.com:9313/status
 func main() {
-
+	defer profile.Start(profile.MemProfile, profile.ProfilePath(".")).Stop()
 	log.Printf("starting... server: %v, sync interval: %v\n", *server, *interval)
 	i, err := time.ParseDuration(*interval)
 	if err != nil {
