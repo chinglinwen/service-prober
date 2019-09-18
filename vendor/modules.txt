@@ -39,6 +39,8 @@ github.com/google/cloudprober/validators/integrity/proto
 github.com/google/cloudprober/targets/rds/proto
 # github.com/pkg/errors v0.8.1
 github.com/pkg/errors
+# github.com/pkg/profile v1.3.0
+github.com/pkg/profile
 # golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
 golang.org/x/net/trace
 golang.org/x/net/http2
